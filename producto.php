@@ -66,7 +66,7 @@ if(isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])) {
             </a>
             
             <div class="flex items-center gap-6">
-                <a href="index.php" class="font-serif font-bold text-xl text-brand-dark"><img src="logo.png" alt="Ambar" class="h-8 inline-block mr-2">Ambar</a>
+                <a href="index.php" class="font-serif font-bold text-xl text-brand-dark"><img src="logo.png" alt="Ambar" class="h-8 inline-block mr-2"></a>
                 
                 <a href="carrito.php" id="btn-carrito" class="relative cursor-pointer text-slate-600 hover:text-brand-accent transition p-2 hover:bg-pink-50 rounded-full">
                     <i data-lucide="shopping-bag" class="h-6 w-6"></i>

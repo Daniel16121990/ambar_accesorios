@@ -75,7 +75,6 @@ $cantidad_carrito = count($_SESSION['carrito']);
             <div class="flex justify-between items-center h-20">
                 <div class="flex-shrink-0 flex items-center cursor-pointer group">
                     <img src="logo.png" alt="Ambar Logo" class="h-12 w-auto mr-3 group-hover:rotate-12 transition-transform duration-300">
-                    <span class="font-serif text-2xl font-bold text-brand-dark tracking-tight">Ambar</span>
                 </div>
                 
                 <div class="flex items-center space-x-8">

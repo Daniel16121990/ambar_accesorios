@@ -52,19 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregar Producto</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-gray-50">
 
-    <div class="max-w-2xl mx-auto p-8">
+    <div class="max-w-2xl mx-auto p-4 sm:p-8">
         <a href="admin.php" class="text-gray-500 hover:text-pink-600 flex items-center gap-2 mb-6">
             <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al panel
         </a>
 
-        <div class="bg-white p-8 rounded-2xl shadow-lg border border-pink-100">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Nuevo Moño 🎀</h1>
+        <div class="bg-white p-4 sm:p-8 rounded-2xl shadow-lg border border-pink-100">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Nuevo Moño 🎀</h1>
 
             <?php if(isset($error)): ?>
                 <div class="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm"><?php echo $error; ?></div>
@@ -77,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="text" name="nombre" required class="w-full border border-gray-300 rounded-lg p-3 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Precio</label>
                         <input type="number" step="0.01" name="precio" required class="w-full border border-gray-300 rounded-lg p-3 focus:border-pink-500 outline-none">
