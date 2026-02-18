@@ -65,16 +65,77 @@ $cantidad_carrito = count($_SESSION['carrito']);
     <style>
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, .font-serif { font-family: 'Georgia', serif; }
+
+        
+        /* Intro Overlay Styles */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #fdf2f8; /* brand-light */
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+        
+        #intro-logo {
+            width: 22rem;
+            height: auto;
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: drop-shadow(0 10px 15px rgba(219, 39, 119, 0.2));
+        }
+
+        /* Navbar Brand Animation */
+        #navbar-brand {
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            transform: translateX(-20px);
+        }
+        .brand-visible {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+        }
+
+        
     </style>
 </head>
-<body class="bg-brand-light font-sans text-slate-700 overflow-x-hidden">
+<body class="bg-brand-light font-sans text-slate-700 overflow-x-hidden noscroll">
+
+    <!-- Intro Overlay -->
+    <div id="intro-overlay">
+        <img src="logo.svg" alt="Ambar Logo" id="intro-logo">
+    </div>
+    <script>
+        (function() {
+            try {
+                var isReload = false;
+                if (window.performance) {
+                    if (performance.navigation && performance.navigation.type === 1) {
+                        isReload = true;
+                    } else if (performance.getEntriesByType) {
+                        var nav = performance.getEntriesByType("navigation")[0];
+                        if (nav && nav.type === 'reload') isReload = true;
+                    }
+                }
+                if (sessionStorage.getItem('hasSeenIntro') && !isReload) {
+                    var overlay = document.getElementById('intro-overlay');
+                    if (overlay) overlay.style.display = 'none';
+                    document.body.classList.remove('noscroll');
+                    // Force navbar brand visible immediately
+                    document.write('<style>#navbar-brand { opacity: 1 !important; transform: none !important; }</style>');
+                }
+            } catch(e) {}
+        })();
+    </script>
 
     <!-- Navbar -->
     <nav class="bg-white/80 backdrop-blur-md fixed w-full z-50 shadow-sm transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <div class="flex-shrink-0 flex items-center cursor-pointer group">
-                    <img src="logo.png" alt="Ambar Logo" class="h-12 w-auto mr-3 group-hover:rotate-12 transition-transform duration-300">
+                    <h1 id="navbar-brand" class="font-serif text-3xl font-bold text-brand-dark opacity-0 group-hover:text-brand-accent transition-colors">
+                        Ambar
+                    </h1>
                 </div>
                 
                 <div class="flex items-center space-x-8">
@@ -95,7 +156,7 @@ $cantidad_carrito = count($_SESSION['carrito']);
     <!-- Hero Section -->
     <header class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <span class="inline-block py-1 px-3 rounded-full bg-pink-100 text-brand-dark text-xs font-bold tracking-widest mb-6 animate-bounce">NUEVA COLECCIÓN 2025</span>
+            <span class="inline-block py-1 px-3 rounded-full bg-pink-100 text-brand-dark text-xs font-bold tracking-widest mb-6 animate-bounce">NUEVA COLECCIÓN 2026</span>
             <h1 class="text-5xl md:text-7xl font-serif font-bold text-brand-dark mb-6 leading-tight">
                 El toque final <br/> <span class="text-brand-accent italic">para tu estilo</span>
             </h1>
@@ -262,7 +323,7 @@ $cantidad_carrito = count($_SESSION['carrito']);
             </div>
         </div>
         <div class="border-t border-slate-800 mt-12 pt-8 text-center text-xs text-slate-500">
-            &copy; 2024 Ambar Tienda Online. Todos los derechos reservados.
+            &copy; 2026 Ambar Tienda Online. Todos los derechos reservados.
         </div>
     </footer>
 
@@ -276,6 +337,49 @@ $cantidad_carrito = count($_SESSION['carrito']);
 
     <script>
         lucide.createIcons();
+
+        // Intro Animation Script
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('intro-overlay');
+            const introLogo = document.getElementById('intro-logo');
+            const navbarBrand = document.getElementById('navbar-brand');
+            const body = document.body;
+
+            // Check if it's a reload or first visit within session
+            const navigationEntry = performance.getEntriesByType("navigation")[0];
+            const isReload = navigationEntry && navigationEntry.type === 'reload';
+            const hasSeenIntro = sessionStorage.getItem('hasSeenIntro');
+
+            if (!hasSeenIntro || isReload) {
+                // RUN ANIMATION
+                sessionStorage.setItem('hasSeenIntro', 'true');
+
+                // Sequence
+                setTimeout(() => {
+                    // 1. Shrink/Fade Logo
+                    introLogo.style.transform = 'scale(0.8) translateY(-20px)';
+                    introLogo.style.opacity = '0';
+                    
+                    // 2. Hide Overlay
+                    setTimeout(() => {
+                        overlay.style.opacity = '0';
+                        overlay.style.pointerEvents = 'none';
+                        body.classList.remove('noscroll');
+                        
+                        // 3. Show Navbar Text
+                        setTimeout(() => {
+                            navbarBrand.classList.add('brand-visible');
+                        }, 300);
+
+                    }, 600); 
+                }, 1500); 
+            } else {
+                // SKIP ANIMATION (Navigation from other pages)
+                overlay.style.display = 'none';
+                body.classList.remove('noscroll');
+                navbarBrand.classList.add('brand-visible');
+            }
+        });
 
         <?php if ($producto_agregado): ?>
         document.addEventListener('DOMContentLoaded', () => {
