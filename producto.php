@@ -94,18 +94,23 @@ if(isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])) {
             <div class="bg-white rounded-[2.5rem] p-4 shadow-xl border border-white relative group flex gap-4 h-[500px]">
                 
                 <div class="flex flex-col gap-3 w-20 py-2 overflow-y-auto scrollbar-hide">
+                    <?php if(!empty($producto['imagen'])): ?>
                     <button onclick="cambiarImagen(this)" class="border-2 border-brand-accent rounded-xl overflow-hidden h-20 w-full flex-shrink-0 transition hover:opacity-80 focus:outline-none">
                         <img src="<?php echo $producto['imagen']; ?>" class="w-full h-full object-cover">
                     </button>
+                    <?php endif; ?>
                     
-                    <!-- Simulando más imágenes con filtros -->
+                    <?php if(!empty($producto['imagen_2'])): ?>
                     <button onclick="cambiarImagen(this)" class="border-2 border-transparent hover:border-pink-200 rounded-xl overflow-hidden h-20 w-full flex-shrink-0 transition opacity-60 hover:opacity-100 focus:outline-none">
-                        <img src="<?php echo $producto['imagen']; ?>" class="w-full h-full object-cover filter sepia">
+                        <img src="<?php echo $producto['imagen_2']; ?>" class="w-full h-full object-cover">
                     </button>
+                    <?php endif; ?>
                     
+                    <?php if(!empty($producto['imagen_3'])): ?>
                     <button onclick="cambiarImagen(this)" class="border-2 border-transparent hover:border-pink-200 rounded-xl overflow-hidden h-20 w-full flex-shrink-0 transition opacity-60 hover:opacity-100 focus:outline-none">
-                        <img src="<?php echo $producto['imagen']; ?>" class="w-full h-full object-cover filter grayscale">
+                        <img src="<?php echo $producto['imagen_3']; ?>" class="w-full h-full object-cover">
                     </button>
+                    <?php endif; ?>
                 </div>
 
                 <div class="flex-1 relative overflow-hidden rounded-[2rem] bg-gray-50 group-image cursor-zoom-in" onmousemove="zoomImagen(event)" onmouseleave="resetZoom(event)">
@@ -194,7 +199,6 @@ if(isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])) {
         // Lógica de la Galería
         function cambiarImagen(thumbnail) {
             const nuevaSrc = thumbnail.querySelector('img').src;
-            const filtros = getComputedStyle(thumbnail.querySelector('img')).filter;
             
             const imagenPrincipal = document.getElementById('imagen-principal');
             
@@ -203,7 +207,6 @@ if(isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])) {
             
             setTimeout(() => {
                 imagenPrincipal.src = nuevaSrc;
-                imagenPrincipal.style.filter = filtros; 
                 imagenPrincipal.style.opacity = '1';
             }, 150);
 

@@ -141,14 +141,49 @@ if (isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])) {
         
         <!-- Calculadora de Envío -->
         <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Calcular Envío</label>
-            <div class="flex gap-2">
-                <input type="text" id="codigo_postal" placeholder="Código Postal" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-accent transition">
-                <button onclick="calcularEnvio()" class="bg-slate-200 text-slate-600 px-3 py-2 rounded-lg hover:bg-slate-300 transition">
-                    <i data-lucide="search" class="w-4 h-4"></i>
-                </button>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Método de Envío</label>
+            
+            <div class="space-y-3 mb-4">
+                <label class="flex items-center p-3 border border-pink-200 rounded-lg cursor-pointer hover:bg-pink-50 transition w-full">
+                    <input type="radio" name="opcion_envio" value="mercado_envios" class="w-4 h-4 text-brand-accent focus:ring-brand-accent" checked onchange="cambiarMetodoEnvio()">
+                    <span class="ml-3 text-sm font-medium text-slate-700 flex flex-col">
+                        <span>Mercado Envíos <i data-lucide="zap" class="w-3 h-3 text-yellow-500 inline"></i></span>
+                        <span class="text-xs text-slate-400 font-normal">Calculado y cobrado por Mercado Pago automático.</span>
+                    </span>
+                </label>
+                
+                <label class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-100 transition w-full">
+                    <input type="radio" name="opcion_envio" value="correo_argentino" class="w-4 h-4 text-slate-500 focus:ring-brand-accent" onchange="cambiarMetodoEnvio()">
+                    <span class="ml-3 text-sm font-medium text-slate-700 flex flex-col">
+                        <span>Correo Argentino <i data-lucide="package" class="w-3 h-3 text-blue-500 inline"></i></span>
+                        <span class="text-xs text-slate-400 font-normal">Envío clásico por correo nacional.</span>
+                    </span>
+                </label>
             </div>
-            <p id="mensaje-envio" class="text-xs mt-2 text-slate-400 hidden"></p>
+
+            <div id="contenedor-cp" class="hidden transition-all">
+                <p class="text-xs text-slate-500 mb-2">Ingresa tu CP para calcular el costo por Correo Argentino:</p>
+                <div class="flex gap-2">
+                    <input type="number" id="codigo_postal" placeholder="Código Postal (ej: 1425)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-accent transition">
+                    <button type="button" onclick="calcularEnvio()" class="bg-slate-200 text-slate-600 px-3 py-2 rounded-lg hover:bg-slate-300 transition">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <p id="mensaje-envio" class="text-xs mt-2 text-slate-400 hidden"></p>
+                <!-- Formulario de Dirección -->
+                <div id="contenedor-direccion" class="mt-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100 hidden">
+                    <p class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-3">Dirección de Destino</p>
+                    <div class="space-y-3">
+                        <input type="text" id="dir_nombre" placeholder="Nombre de quien recibe" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-accent transition">
+                        <input type="text" id="dir_calle" placeholder="Calle y Número (Ej: Av. San Martín 123)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-accent transition">
+                        <input type="text" id="dir_piso" placeholder="Piso / Depto / Lote (Opcional)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-accent transition">
+                        <div class="flex gap-2">
+                            <input type="text" id="dir_ciudad" placeholder="Ciudad / Localidad" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-accent transition">
+                            <input type="text" id="dir_provincia" placeholder="Provincia" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-accent transition">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="space-y-4 mb-6">
@@ -180,8 +215,16 @@ if (isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])) {
         </div>
 
         <!-- Formulario para ir a Checkout (Mercado Pago) -->
-        <form action="checkout.php" method="POST">
+        <form action="checkout.php" method="POST" id="form-checkout" onsubmit="return validarCheckout()">
+            <input type="hidden" name="tipo_envio" id="input_tipo_envio_checkout" value="mercado_envios">
             <input type="hidden" name="codigo_postal" id="input_cp_checkout">
+            <input type="hidden" name="costo_envio" id="input_costo_envio_checkout" value="0">
+            <!-- Campos de dirección ocultos -->
+            <input type="hidden" name="dir_nombre" id="input_dir_nombre">
+            <input type="hidden" name="dir_calle" id="input_dir_calle">
+            <input type="hidden" name="dir_piso" id="input_dir_piso">
+            <input type="hidden" name="dir_ciudad" id="input_dir_ciudad">
+            <input type="hidden" name="dir_provincia" id="input_dir_provincia">
             <button type="submit" 
                class="group w-full bg-[#009EE3] text-white text-center py-4 rounded-2xl font-bold text-lg hover:bg-[#0081b9] transition-all duration-300 shadow-lg hover:shadow-blue-300/50 hover:-translate-y-1 flex items-center justify-center gap-2 overflow-hidden relative">
                 
@@ -199,35 +242,124 @@ if (isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])) {
 </div>
 
 <script>
+    function cambiarMetodoEnvio() {
+        const metodo = document.querySelector('input[name="opcion_envio"]:checked').value;
+        const contenedorCp = document.getElementById('contenedor-cp');
+        const display = document.getElementById('costo-envio-display');
+        const inputTipoCheckout = document.getElementById('input_tipo_envio_checkout');
+        const granTotalDisplay = document.getElementById('gran-total');
+        const msg = document.getElementById('mensaje-envio');
+
+        // Resetear visuales y valores ocultos
+        inputTipoCheckout.value = metodo;
+        document.getElementById('input_costo_envio_checkout').value = '0';
+        msg.classList.add('hidden');
+        
+        let subtotal = <?php echo $total_pagar; ?>;
+
+        if (metodo === 'mercado_envios') {
+            contenedorCp.classList.add('hidden');
+            document.getElementById('contenedor-direccion').classList.add('hidden');
+            display.innerText = "Calculado en pago";
+            display.classList.remove('text-brand-dark', 'font-bold');
+            display.classList.add('text-slate-500');
+            granTotalDisplay.innerText = '$' + subtotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        } else {
+            contenedorCp.classList.remove('hidden');
+            display.innerText = "Falta ingresar CP";
+            display.classList.remove('text-brand-dark', 'font-bold');
+            display.classList.add('text-slate-500');
+            granTotalDisplay.innerText = '$' + subtotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+    }
+
+    // Inicializar visual al cargar la pagina por si queda cacheado en ME2
+    cambiarMetodoEnvio();
+
     function calcularEnvio() {
         const cp = document.getElementById('codigo_postal').value;
         const msg = document.getElementById('mensaje-envio');
         const display = document.getElementById('costo-envio-display');
-        const inputCheckout = document.getElementById('input_cp_checkout');
+        const inputCpCheckout = document.getElementById('input_cp_checkout');
+        const inputCostoCheckout = document.getElementById('input_costo_envio_checkout');
         const granTotalDisplay = document.getElementById('gran-total');
         
-        // Simulación básica (Debería ser AJAX a tu backend real)
-        if(cp.length === 5) {
-            let costo = 150;
-            if(cp.startsWith('0') || cp.startsWith('1')) costo = 50; // Ejemplo: CDMX más barato
-            
-            display.innerText = '$' + costo.toFixed(2);
-            display.classList.add('text-brand-dark', 'font-bold');
-            
-            msg.innerText = "Costo calculado para " + cp;
-            msg.className = "text-xs mt-2 text-green-600 block";
-            
-            inputCheckout.value = cp;
+        if(cp.length >= 4) {
+            msg.innerText = "Calculando...";
+            msg.className = "text-xs mt-2 text-slate-500 block";
 
-            // Actualizar Gran Total Visualmente
-            let subtotal = <?php echo $total_pagar; ?>;
-            let total = subtotal + costo;
-            granTotalDisplay.innerText = '$' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); // Formato simple
+            // Fetch a nuestra API de envíos local
+            fetch('api_envios.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cp: cp })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    let costo = parseFloat(data.costo);
+                    
+                    display.innerText = '$' + costo.toFixed(2);
+                    display.classList.remove('text-slate-500');
+                    display.classList.add('text-brand-dark', 'font-bold');
+                    
+                    msg.innerHTML = "Costo calculado vía " + data.proveedor + "<br><span class='font-medium'>🚚 LLegada estimada: " + data.tiempo_estimado + "</span>";
+                    msg.className = "text-xs mt-2 text-green-600 block bg-green-50 p-2 rounded border border-green-100";
+                    
+                    inputCpCheckout.value = cp;
+                    inputCostoCheckout.value = costo;
+                    
+                    document.getElementById('contenedor-direccion').classList.remove('hidden');
+
+                    // Actualizar Gran Total
+                    let subtotal = <?php echo $total_pagar; ?>;
+                    let total = subtotal + costo;
+                    granTotalDisplay.innerText = '$' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                } else {
+                    msg.innerText = data.message || "Error al calcular.";
+                    msg.className = "text-xs mt-2 text-red-500 block";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                msg.innerText = "Hubo un error de conexión.";
+                msg.className = "text-xs mt-2 text-red-500 block";
+            });
 
         } else {
-            msg.innerText = "Ingresa un CP válido (5 dígitos)";
+            msg.innerText = "Ingresa un CP válido (4 dígitos Arg)";
             msg.className = "text-xs mt-2 text-red-500 block";
         }
+    }
+    
+    function validarCheckout() {
+        const metodo = document.querySelector('input[name="opcion_envio"]:checked').value;
+        if (metodo === 'correo_argentino') {
+            const cp = document.getElementById('codigo_postal').value;
+            const nombre = document.getElementById('dir_nombre').value.trim();
+            const calle = document.getElementById('dir_calle').value.trim();
+            const ciudad = document.getElementById('dir_ciudad').value.trim();
+            const provincia = document.getElementById('dir_provincia').value.trim();
+            const costo = document.getElementById('input_costo_envio_checkout').value;
+            
+            if (costo === '0' || !cp) {
+                alert("Por favor, calcula primero el costo de envío ingresando tu código postal.");
+                return false;
+            }
+            
+            if (!nombre || !calle || !ciudad || !provincia) {
+                alert("Por favor, completa todos los campos de la dirección (Nombre, Calle, Ciudad y Provincia).");
+                return false;
+            }
+            
+            // Pasar valores a los inputs ocultos
+            document.getElementById('input_dir_nombre').value = nombre;
+            document.getElementById('input_dir_calle').value = calle;
+            document.getElementById('input_dir_piso').value = document.getElementById('dir_piso').value.trim();
+            document.getElementById('input_dir_ciudad').value = ciudad;
+            document.getElementById('input_dir_provincia').value = provincia;
+        }
+        return true;
     }
 </script>
 

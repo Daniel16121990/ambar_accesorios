@@ -1,0 +1,12 @@
+{
+    "name": "abraham/tienda_online",
+    "authors": [
+        {
+            "name": "Daniel Perez Dell",
+            "email": "nukenabber834159672@gmail.com"
+        }
+    ],
+    "require": {
+        "mercadopago/dx-php": "dev-master"
+    }
+}

@@ -13,27 +13,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $precio = $_POST['precio'];
     $descripcion = $_POST['descripcion'];
     
-    // Manejo de la IMAGEN
+    // Manejo de la IMAGEN principal
     $directorio = "uploads/";
     $nombre_archivo = basename($_FILES["foto"]["name"]);
-    // Generar nombre único para evitar duplicados (ej: 1740293_nombrefoto.jpg)
     $ruta_final = $directorio . time() . "_" . $nombre_archivo;
     
     $uploadOk = 1;
-
-    // Verificar si es una imagen real
     $check = getimagesize($_FILES["foto"]["tmp_name"]);
     if($check === false) {
-        $error = "El archivo no es una imagen.";
+        $error = "El archivo principal no es una imagen.";
         $uploadOk = 0;
+    }
+
+    // Manejo de IMAGEN 2
+    $ruta_final_2 = null;
+    if (isset($_FILES["foto_2"]) && !empty($_FILES["foto_2"]["name"])) {
+        $ruta_final_2 = $directorio . time() . "_2_" . basename($_FILES["foto_2"]["name"]);
+        move_uploaded_file($_FILES["foto_2"]["tmp_name"], $ruta_final_2);
+    }
+
+    // Manejo de IMAGEN 3
+    $ruta_final_3 = null;
+    if (isset($_FILES["foto_3"]) && !empty($_FILES["foto_3"]["name"])) {
+        $ruta_final_3 = $directorio . time() . "_3_" . basename($_FILES["foto_3"]["name"]);
+        move_uploaded_file($_FILES["foto_3"]["tmp_name"], $ruta_final_3);
     }
 
     if ($uploadOk == 1) {
         if (move_uploaded_file($_FILES["foto"]["tmp_name"], $ruta_final)) {
             // Insertar en la Base de Datos
-            // Nota: Guardamos la ruta en la BD (ej: "uploads/foto.jpg")
-            $stmt = $conn->prepare("INSERT INTO productos (nombre, descripcion, precio, imagen) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("ssds", $nombre, $descripcion, $precio, $ruta_final);
+            $stmt = $conn->prepare("INSERT INTO productos (nombre, descripcion, precio, imagen, imagen_2, imagen_3) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssdsss", $nombre, $descripcion, $precio, $ruta_final, $ruta_final_2, $ruta_final_3);
             
             if ($stmt->execute()) {
                 header("Location: admin.php");
@@ -42,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Error al guardar en BD.";
             }
         } else {
-            $error = "Hubo un error al subir la imagen.";
+            $error = "Hubo un error al subir la imagen principal.";
         }
     }
 }
@@ -84,8 +94,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="number" step="0.01" name="precio" required class="w-full border border-gray-300 rounded-lg p-3 focus:border-pink-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Foto</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Foto Principal</label>
                         <input type="file" name="foto" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Foto 2 (Opcional)</label>
+                        <input type="file" name="foto_2" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Foto 3 (Opcional)</label>
+                        <input type="file" name="foto_3" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
                     </div>
                 </div>
 

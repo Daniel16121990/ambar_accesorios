@@ -33,41 +33,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $precio = $_POST['precio'];
     $descripcion = $_POST['descripcion'];
     
-    // Verificar si se subió una nueva imagen
+    $directorio = "uploads/";
+
+    // Verificar si se subió una nueva imagen principal
     if (!empty($_FILES["foto"]["name"])) {
-        // Manejo de la nueva imagen
-        $directorio = "uploads/";
-        $nombre_archivo = basename($_FILES["foto"]["name"]);
-        $ruta_final = $directorio . time() . "_" . $nombre_archivo;
-        
-        $uploadOk = 1;
-
-        // Verificar si es una imagen real
+        $ruta_final = $directorio . time() . "_" . basename($_FILES["foto"]["name"]);
         $check = getimagesize($_FILES["foto"]["tmp_name"]);
-        if($check === false) {
-            $error = "El archivo no es una imagen.";
-            $uploadOk = 0;
-        }
-
-        if ($uploadOk == 1) {
-            if (move_uploaded_file($_FILES["foto"]["tmp_name"], $ruta_final)) {
-                // Eliminar la imagen anterior si existe
-                if (file_exists($producto['imagen'])) {
-                    unlink($producto['imagen']);
-                }
-                
-                // Actualizar con nueva imagen
-                $stmt = $conn->prepare("UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, imagen = ? WHERE id = ?");
-                $stmt->bind_param("ssdsi", $nombre, $descripcion, $precio, $ruta_final, $id);
-            } else {
-                $error = "Hubo un error al subir la imagen.";
+        
+        if($check !== false && move_uploaded_file($_FILES["foto"]["tmp_name"], $ruta_final)) {
+            if (!empty($producto['imagen']) && file_exists($producto['imagen'])) {
+                unlink($producto['imagen']);
             }
+            $stmt = $conn->prepare("UPDATE productos SET imagen = ? WHERE id = ?");
+            $stmt->bind_param("si", $ruta_final, $id);
+            $stmt->execute();
         }
-    } else {
-        // Actualizar sin cambiar la imagen
-        $stmt = $conn->prepare("UPDATE productos SET nombre = ?, descripcion = ?, precio = ? WHERE id = ?");
-        $stmt->bind_param("ssdi", $nombre, $descripcion, $precio, $id);
     }
+
+    // Verificar si se subió imagen 2
+    if (!empty($_FILES["foto_2"]["name"])) {
+        $ruta_final_2 = $directorio . time() . "_2_" . basename($_FILES["foto_2"]["name"]);
+        $check = getimagesize($_FILES["foto_2"]["tmp_name"]);
+        
+        if($check !== false && move_uploaded_file($_FILES["foto_2"]["tmp_name"], $ruta_final_2)) {
+            if (!empty($producto['imagen_2']) && file_exists($producto['imagen_2'])) {
+                unlink($producto['imagen_2']);
+            }
+            $stmt = $conn->prepare("UPDATE productos SET imagen_2 = ? WHERE id = ?");
+            $stmt->bind_param("si", $ruta_final_2, $id);
+            $stmt->execute();
+        }
+    }
+
+    // Verificar si se subió imagen 3
+    if (!empty($_FILES["foto_3"]["name"])) {
+        $ruta_final_3 = $directorio . time() . "_3_" . basename($_FILES["foto_3"]["name"]);
+        $check = getimagesize($_FILES["foto_3"]["tmp_name"]);
+        
+        if($check !== false && move_uploaded_file($_FILES["foto_3"]["tmp_name"], $ruta_final_3)) {
+            if (!empty($producto['imagen_3']) && file_exists($producto['imagen_3'])) {
+                unlink($producto['imagen_3']);
+            }
+            $stmt = $conn->prepare("UPDATE productos SET imagen_3 = ? WHERE id = ?");
+            $stmt->bind_param("si", $ruta_final_3, $id);
+            $stmt->execute();
+        }
+    }
+
+    // Actualizar datos de texto
+    $stmt = $conn->prepare("UPDATE productos SET nombre = ?, descripcion = ?, precio = ? WHERE id = ?");
+    $stmt->bind_param("ssdi", $nombre, $descripcion, $precio, $id);
     
     if (!isset($error) && $stmt->execute()) {
         header("Location: admin.php");
@@ -114,16 +129,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="number" step="0.01" name="precio" value="<?php echo $producto['precio']; ?>" required class="w-full border border-gray-300 rounded-lg p-3 focus:border-pink-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Foto (opcional)</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Foto Principal (opcional)</label>
                         <input type="file" name="foto" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Foto 2 (opcional)</label>
+                        <input type="file" name="foto_2" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Foto 3 (opcional)</label>
+                        <input type="file" name="foto_3" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
                     </div>
                 </div>
 
-                <!-- Mostrar imagen actual -->
+                <!-- Mostrar imágenes actuales -->
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Imagen actual</label>
-                    <img src="<?php echo $producto['imagen']; ?>" class="w-32 h-32 object-cover rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-500 mt-1">Deja el campo de foto vacío si no quieres cambiarla</p>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Imágenes actuales</label>
+                    <div class="flex gap-4">
+                        <?php if(!empty($producto['imagen'])): ?>
+                        <div class="text-center">
+                            <img src="<?php echo $producto['imagen']; ?>" class="w-24 h-24 object-cover rounded-lg border border-gray-200">
+                            <span class="text-xs text-gray-500">Principal</span>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if(!empty($producto['imagen_2'])): ?>
+                        <div class="text-center">
+                            <img src="<?php echo $producto['imagen_2']; ?>" class="w-24 h-24 object-cover rounded-lg border border-gray-200">
+                            <span class="text-xs text-gray-500">Foto 2</span>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if(!empty($producto['imagen_3'])): ?>
+                        <div class="text-center">
+                            <img src="<?php echo $producto['imagen_3']; ?>" class="w-24 h-24 object-cover rounded-lg border border-gray-200">
+                            <span class="text-xs text-gray-500">Foto 3</span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Deja el campo vacío para mantener la foto actual</p>
                 </div>
 
                 <div>

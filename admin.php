@@ -33,9 +33,12 @@ $result = $conn->query($sql);
 
     <nav class="bg-white shadow px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
         <span class="font-bold text-xl text-pink-700">Admin Panel 🎀</span>
-        <div class="flex gap-3 sm:gap-4 text-sm sm:text-base">
+        <div class="flex gap-3 sm:gap-4 text-sm sm:text-base items-center">
+            <a href="admin.php" class="text-pink-600 font-bold flex gap-1 items-center"><i data-lucide="box" class="w-4 h-4"></i> Productos</a>
+            <a href="admin_pedidos.php" class="text-gray-500 hover:text-pink-600 flex gap-1 items-center"><i data-lucide="shopping-bag" class="w-4 h-4"></i> Mis Ventas</a>
+            <span class="text-gray-300">|</span>
             <a href="index.php" target="_blank" class="text-gray-500 hover:text-pink-600 flex gap-1 items-center"><i data-lucide="external-link" class="w-4 h-4"></i> Ver Tienda</a>
-            <a href="logout.php" class="text-red-500 hover:text-red-700 font-medium">Cerrar Sesión</a>
+            <a href="logout.php" class="text-red-500 hover:text-red-700 font-medium ml-2">Cerrar Sesión</a>
         </div>
     </nav>
 
